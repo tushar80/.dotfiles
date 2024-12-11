@@ -1,7 +1,7 @@
 [init]
 	defaultBranch = main
 [user]
-	name = Tushar Patil
+	name = BB
 	email = patiltushar80@yahoo.com
 [core]
 	editor = nvim
