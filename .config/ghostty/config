@@ -1,0 +1,11 @@
+theme = catppuccin-mocha
+font-family = JetBrainsMono Nerd Font
+
+shell-integration-features = no-cursor
+cursor-style = block
+
+gtk-titlebar = false
+
+term = xterm-256color
+
+keybind = f11=toggle_fullscreen
