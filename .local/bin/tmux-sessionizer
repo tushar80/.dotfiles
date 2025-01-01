@@ -3,7 +3,9 @@
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find ~/Projects ~/ -mindepth 1 -maxdepth 1 -type d | fzf --tmux)
+    directories=$(find ~/Projects -mindepth 1 -maxdepth 1 -type d)
+    directories+="\n~/.dotfiles"
+    selected=$(printf "$directories" | fzf --tmux)
 fi
 
 if [[ -z $selected ]]; then
