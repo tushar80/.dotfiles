@@ -3,7 +3,7 @@
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    selected=$(find ~/Projects -mindepth 1 -maxdepth 1 -type d | fzf --tmux)
+    selected=$(find ~/Projects ~/ -mindepth 1 -maxdepth 1 -type d | fzf --tmux)
 fi
 
 if [[ -z $selected ]]; then
@@ -16,7 +16,7 @@ tmux_running=$(pgrep tmux)
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
     tmux new-session -s $selected_name -c $selected
     if test -f $selected/tmuxrc; then
-        $selected/tmuxrc
+        $selected/.tmuxrc
     fi
     exit 0
 fi
@@ -24,7 +24,7 @@ fi
 if ! tmux has-session -t=$selected_name 2> /dev/null; then
     tmux new-session -ds $selected_name -c $selected
     if test -f $selected/tmuxrc; then
-        $selected/tmuxrc
+        $selected/.tmuxrc
     fi
 fi
 
