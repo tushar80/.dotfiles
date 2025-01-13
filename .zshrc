@@ -63,6 +63,16 @@ bindkey "^[[3~" delete-char
 bindkey -s ^f "tmux-sessionizer\n"
 alias tmux-root='tmux new -A -s root'
 
+#Always open in tmux
+# tmux_root_name="root"
+# if [[ -z $TMUX ]]; then
+#    if ! tmux has-session -t=$tmux_root_name 2> /dev/null; then
+#        tmux new-session -s $tmux_root_name
+#    else
+#        tmux switch-client -t $tmux_root_name
+#    fi
+# fi
+
 export EDITOR=nvim
 export PATH=$PATH:~/.local/bin/
 export PATH=$PATH:~/go/bin/

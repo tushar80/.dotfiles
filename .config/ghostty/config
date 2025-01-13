@@ -9,3 +9,5 @@ gtk-titlebar = false
 term = xterm-256color
 
 keybind = f11=toggle_fullscreen
+
+#initial-command=tmux new-session -A -s root
