@@ -10,8 +10,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 bindkey -e
 
-zinit ice depth=1; zinit light romkatv/powerlevel10k
-
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
@@ -80,4 +78,7 @@ export PATH=$PATH:~/go/bin/
 
 figlet K TushaR N -c -k
 
-[[ ! -f ~/.cache/.p10k.zsh ]] || source ~/.cache/.p10k.zsh
+if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh --config ~/.config/omp.toml)"
+fi
+# ~/.cache/oh-my-posh/themes/catppuccin.omp.json
