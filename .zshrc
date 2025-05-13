@@ -1,3 +1,7 @@
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 
@@ -14,6 +18,8 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
+
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zinit snippet OMZP::sudo
 zinit snippet OMZP::archlinux
@@ -78,7 +84,10 @@ export PATH=$PATH:~/go/bin/
 
 figlet K TushaR N -c -k
 
-if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config ~/.config/omp.toml)"
-fi
-# ~/.cache/oh-my-posh/themes/catppuccin.omp.json
+# if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+#   eval "$(oh-my-posh init zsh --config ~/.config/omp.toml)"
+# fi
+# # ~/.cache/oh-my-posh/themes/catppuccin.omp.json
+
+[[ ! -f ~/.cache/.p10k.zsh ]] || source ~/.cache/.p10k.zsh
+
