@@ -14,10 +14,10 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 bindkey -e
 
-zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
+zinit light zsh-users/zsh-syntax-highlighting
 
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 
@@ -61,7 +61,7 @@ if [ -n "${commands[fzf]}" ]; then
 eval "$(fzf --zsh)"
 fi
 
-eval "$(zoxide init --cmd cd zsh)"
+(( $+commands[zoxide] )) && eval "$(zoxide init --cmd cd zsh)"
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
@@ -82,8 +82,8 @@ alias tmux-root='tmux new -A -s root'
 # fi
 
 export EDITOR=nvim
-export PATH=$PATH:~/.local/bin/
-export PATH=$PATH:~/go/bin/
+typeset -U path
+export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
 
 
 [[ -o login ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
