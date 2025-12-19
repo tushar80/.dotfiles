@@ -28,7 +28,12 @@ zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
 zinit snippet OMZP::command-not-found
 
-autoload -Uz compinit && compinit
+autoload -Uz compinit
+if [[ -n ~/.cache/.zcompdump(#qN.mh+24) ]]; then
+  compinit -d ~/.cache/.zcompdump
+else
+  compinit -C -d ~/.cache/.zcompdump
+fi
 _comp_options+=(globdots)
 
 zinit cdreplay -q
@@ -42,7 +47,6 @@ setopt appendhistory
 setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
-setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -82,12 +86,13 @@ export PATH=$PATH:~/.local/bin/
 export PATH=$PATH:~/go/bin/
 
 
-figlet K TushaR N -c -k
+[[ -o login ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
 
 # if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 #   eval "$(oh-my-posh init zsh --config ~/.config/omp.toml)"
 # fi
 # # ~/.cache/oh-my-posh/themes/catppuccin.omp.json
 
-[[ ! -f ~/.cache/.p10k.zsh ]] || source ~/.cache/.p10k.zsh
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
