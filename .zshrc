@@ -10,9 +10,16 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 bindkey -e
 
+zinit ice wait lucid
 zinit light zsh-users/zsh-completions
+
+zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
+
+zinit ice wait lucid
 zinit light Aloxaf/fzf-tab
+
+zinit ice wait lucid
 zinit light zsh-users/zsh-syntax-highlighting
 
 zinit snippet OMZP::sudo
@@ -33,15 +40,17 @@ _comp_options+=(globdots)
 zinit cdreplay -q
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-HISTSIZE=2000
+HISTSIZE=10000
 HISTFILE=~/.cache/.zsh_history
 SAVEHIST=$HISTSIZE
 HISTDUP=erase
 setopt appendhistory
+setopt sharehistory
 setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
+setopt correct
 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"

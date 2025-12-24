@@ -68,7 +68,7 @@ pipestatus = true
 
 [cmd_duration]
 min_time = 3000
-style = "italic 146"
+style = "dimmed 146"
 format = "[$duration]($style) "
 show_milliseconds = false
 
