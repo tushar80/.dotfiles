@@ -1,11 +1,26 @@
 [init]
 	defaultBranch = main
+
+[push]
+	autoSetupRemote = true
+
+[pull]
+	autoSetupRemote = true
+	rebase = true
+
+[rebase]
+	updateRefs = true
+
+[fetch]
+	prune = true
+	writeCommitGraph = true
+
+[rerere]
+	enabled = true
+
+[core]
+	editor = nvim
+
 [user]
 	name = Tushar Patil
 	email = patiltushar80@yahoo.com
-[core]
-	editor = nvim
-[push]
-	autoSetupRemote = true
-[pull]
-	autoSetupRemote = true
