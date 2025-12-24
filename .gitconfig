@@ -21,6 +21,19 @@
 [core]
 	editor = nvim
 
+[diff]
+	algorithm = histogram
+	colorMoved = default
+
+[merge]
+	conflictstyle = zdiff3
+
+[branch]
+	sort = -committerdate
+
+[column]
+	ui = auto
+
 [user]
 	name = Tushar Patil
 	email = patiltushar80@yahoo.com
