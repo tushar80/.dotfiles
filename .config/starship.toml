@@ -1,0 +1,246 @@
+# Starship config mimicking p10k lean style
+# Two-line prompt, disconnected frame, sparse, concise
+# Color palette: Tokyo Night
+
+# Tokyo Night 256-color mappings:
+# Red 210       | Green 149    | Yellow 179 | Blue 111
+# Magenta 141   | Cyan 117     | Orange 215 | Purple 140
+# Teal 115      | Comment 60   | Fg 146     | Dark 103
+
+format = """
+[╭─](60) $directory$git_branch$git_status
+[╰─](60) $character"""
+
+right_format = """$status$cmd_duration$jobs$python$bun$golang$rust$kubernetes$aws"""
+
+add_newline = true
+
+# Faster prompt - scan only current dir for context
+scan_timeout = 30
+command_timeout = 500
+
+[character]
+success_symbol = "[❯](bold 149)"
+error_symbol = "[❯](bold 210)"
+vimcmd_symbol = "[❮](bold 141)"
+vimcmd_replace_one_symbol = "[▶](bold 215)"
+vimcmd_replace_symbol = "[▶](bold 215)"
+vimcmd_visual_symbol = "[V](bold 141)"
+
+[directory]
+style = "bold 117"
+truncation_length = 5
+truncate_to_repo = false
+fish_style_pwd_dir_length = 1
+truncation_symbol = "…/"
+read_only = " "
+read_only_style = "210"
+format = "[$path]($style)[$read_only]($read_only_style) "
+
+[git_branch]
+style = "bold 149"
+symbol = "λ "
+format = "[$symbol$branch(:$remote_branch)]($style)"
+truncation_length = 32
+truncation_symbol = "…"
+
+[git_status]
+style = "bold"
+format = '([ $all_status$ahead_behind]($style))'
+ahead = "[⇡${count}](115) "
+behind = "[⇣${count}](215) "
+diverged = "[⇣${behind_count}](215) [⇡${ahead_count}](115) "
+conflicted = "[~${count}](210) "
+staged = "[+${count}](149) "
+modified = "[!${count}](179) "
+untracked = "[?${count}](141) "
+stashed = "[*${count}](117) "
+deleted = "[✘${count}](210) "
+
+[status]
+disabled = false
+format = '[$symbol$status]($style) '
+symbol = "✘ "
+success_symbol = ""
+style = "bold 210"
+map_symbol = true
+pipestatus = true
+
+[cmd_duration]
+min_time = 3000
+style = "italic 146"
+format = "[$duration]($style) "
+show_milliseconds = false
+
+[jobs]
+style = "bold 141"
+format = "[$symbol$number]($style) "
+threshold = 1
+
+[python]
+style = "179"
+format = '[$symbol${virtualenv}]($style) '
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+[nodejs]
+disabled = true
+
+[golang]
+style = "117"
+format = "[$symbol$version]($style) "
+detect_extensions = []
+detect_files = ["go.mod"]
+detect_folders = []
+
+[rust]
+style = "215"
+format = "[$symbol$version]($style) "
+detect_extensions = []
+detect_files = ["Cargo.toml"]
+detect_folders = []
+
+[kubernetes]
+disabled = true
+style = "141"
+format = '[$symbol$context(/$namespace)]($style) '
+
+[aws]
+disabled = true
+style = "215"
+format = '[$symbol$profile(\($region\))]($style) '
+
+[bun]
+style = "149"
+format = "[$symbol$version]($style) "
+
+# Disabled for performance
+[package]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[terraform]
+disabled = true
+
+[ruby]
+disabled = true
+
+[java]
+disabled = true
+
+[php]
+disabled = true
+
+[lua]
+disabled = true
+
+[perl]
+disabled = true
+
+[swift]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[scala]
+disabled = true
+
+[haskell]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[nim]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[purescript]
+disabled = true
+
+[zig]
+disabled = true
+
+[vlang]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[conda]
+disabled = true
+
+[crystal]
+disabled = true
+
+[dart]
+disabled = true
+
+[deno]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[cmake]
+disabled = true
+
+[cobol]
+disabled = true
+
+[daml]
+disabled = true
+
+[buf]
+disabled = true
+
+[meson]
+disabled = true
+
+[spack]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[env_var]
+disabled = true
+
+[hostname]
+disabled = true
+
+[username]
+disabled = true
+
+[localip]
+disabled = true
+
+[time]
+disabled = true
+
+[battery]
+disabled = true
+
+[line_break]
+disabled = true

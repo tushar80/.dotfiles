@@ -1,7 +1,3 @@
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 
@@ -18,8 +14,6 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
 zinit light zsh-users/zsh-syntax-highlighting
-
-zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 zinit snippet OMZP::sudo
 zinit snippet OMZP::archlinux
@@ -88,11 +82,5 @@ export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
 
 [[ -o login ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
 
-# if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-#   eval "$(oh-my-posh init zsh --config ~/.config/omp.toml)"
-# fi
-# # ~/.cache/oh-my-posh/themes/catppuccin.omp.json
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+eval "$(starship init zsh)"
 
