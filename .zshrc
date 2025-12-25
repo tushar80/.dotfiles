@@ -89,7 +89,7 @@ typeset -U path
 export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
 
 
-[[ -o login ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
+[[ -o interactive ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
 
 eval "$(starship init zsh)"
 
