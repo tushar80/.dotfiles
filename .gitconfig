@@ -10,6 +10,7 @@
 
 [rebase]
 	updateRefs = true
+	autoStash = true
 
 [fetch]
 	prune = true
