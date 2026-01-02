@@ -24,9 +24,9 @@ zinit light zsh-users/zsh-syntax-highlighting
 
 zinit snippet OMZP::sudo
 zinit snippet OMZP::archlinux
-zinit snippet OMZP::aws
-zinit snippet OMZP::kubectl
-zinit snippet OMZP::kubectx
+(( $+commands[aws] )) && zinit snippet OMZP::aws
+(( $+commands[kubectl] )) && zinit snippet OMZP::kubectl
+(( $+commands[kubectx] )) && zinit snippet OMZP::kubectx
 zinit snippet OMZP::command-not-found
 
 autoload -Uz compinit
@@ -49,11 +49,14 @@ setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
+# setopt sharehistory  # Share history between terminal sessions (disabled intentionally)
 setopt correct
 
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' menu no
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
 alias ls='ls --color'
@@ -68,7 +71,7 @@ fi
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 bindkey '^H' backward-kill-word
-bindkey '5~' kill-word
+bindkey '^[[3;5~' kill-word  # Ctrl+Delete
 bindkey "^[[3~" delete-char
 bindkey -s ^f "tmux-sessionizer\n"
 alias tmux-root='tmux new -A -s root'
