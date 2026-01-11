@@ -2,7 +2,15 @@
   "$schema": "https://opencode.ai/config.json",
   "plugin": ["opencode-google-antigravity-auth"],
   "autoupdate": false,
-  "small_model": "google/gemini-2.5-flash-lite",
+  "permission": {
+    "bash": {
+      "rm*": "ask",
+      "git restore*": "ask",
+      "git reset*": "ask",
+      "git clean*": "ask"
+    }
+  },
+  "small_model": "google/gemini-3-flash",
   "provider": {
     "google": {
       "npm": "@ai-sdk/google",
