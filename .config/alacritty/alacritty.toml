@@ -74,6 +74,9 @@ x = 4
 y = 4
 
 [keyboard]
-bindings = [{ key = "F11", action = "ToggleFullscreen" }]
+bindings = [
+  { key = "F11", action = "ToggleFullscreen" },
+  { key = "Enter", mods = "Shift", chars = "\u001b[13;2u" },
+]
 
 [terminal]
