@@ -8,5 +8,5 @@
       "git reset*": "ask",
       "git clean*": "ask"
     }
-  },
+  }
 }
