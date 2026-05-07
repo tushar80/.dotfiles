@@ -88,7 +88,7 @@ alias tmux-root='tmux new -A -s root'
 
 export EDITOR=nvim
 typeset -U path
-export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/go/bin:$PATH"
 
 
 [[ -o interactive ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
