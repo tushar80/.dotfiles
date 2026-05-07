@@ -1,4 +1,4 @@
-# 🏠 Dotfiles
+# Dotfiles
 
 My personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/) and Git.
 
@@ -6,6 +6,14 @@ My personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/)
 
 - [GNU Stow](https://www.gnu.org/software/stow/)
 - Git
+- Zsh
+- Neovim
+- tmux
+- Starship
+- fzf
+- zoxide
+- ripgrep
+- fd
 
 ### System Packages
 
@@ -14,13 +22,27 @@ Install these packages from system's package repository:
 **Debian/Ubuntu:**
 
 ```bash
-sudo apt install tmux ripgrep stow fd-find
+sudo apt install git zsh neovim tmux ripgrep stow fd-find fzf zoxide
 ```
 
 **Arch Linux:**
 
 ```bash
-sudo pacman -S tmux ripgrep stow fd fzf
+sudo pacman -S git zsh neovim tmux ripgrep stow fd fzf zoxide starship
+```
+
+Optional Arch/AUR tooling:
+
+```bash
+paru -S opencode-bin ghostty
+```
+
+### Manual Installation: Starship
+
+If Starship is not available from your system package manager:
+
+```bash
+curl -sS https://starship.rs/install.sh | sh
 ```
 
 ### Manual Installation: fzf
@@ -48,16 +70,31 @@ rm JetBrainsMono.zip
 fc-cache -fv
 ```
 
-## Deploy dotfiles using Stow
+## Clone
 
-   ```bash
-   # Deploy all dotfiles
-   stow --no-folding .
-   
-   # Or deploy specific configurations
-   stow --no-folding --target=~ .config
-   ```
+Clone with submodules so tmux plugin manager is available immediately:
 
-## ⚠️ Notes
+```bash
+git clone --recurse-submodules <repo-url> ~/.dotfiles
+```
+
+If the repo is already cloned:
+
+```bash
+git submodule update --init --recursive
+```
+
+## Deploy Dotfiles Using Stow
+
+```bash
+# Deploy all dotfiles
+stow --no-folding .
+
+# Or deploy specific configurations
+stow --no-folding --target=~ .config
+```
+
+## Notes
 
 - Always use `--no-folding` flag when stowing to maintain proper directory structure
+- `tmux-sessionizer` searches `$HOME/Projects` and `$HOME/HomeWork` by default. Override with colon-separated `TMUX_SESSIONIZER_DIRS`, for example `TMUX_SESSIONIZER_DIRS="$HOME/Code:$HOME/Work"`.
