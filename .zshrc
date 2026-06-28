@@ -40,10 +40,9 @@ _comp_options+=(globdots)
 zinit cdreplay -q
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-HISTSIZE=10000
+HISTSIZE=100000
 HISTFILE=~/.cache/.zsh_history
 SAVEHIST=$HISTSIZE
-HISTDUP=erase
 setopt appendhistory
 setopt hist_ignore_space
 setopt hist_ignore_all_dups

@@ -1,4 +1,2 @@
 .config/tmux/plugins/*
 !.config/tmux/plugins/tpm
-.zsh/zsh-syntax-highlighting/**
-.zsh/oh-my-zsh/**
