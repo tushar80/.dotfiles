@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SESSION_PREFIX='[s] '
+
 if [[ $# -eq 1 ]]; then
   selected=$1
 else
@@ -9,27 +11,49 @@ else
   fi
 
   if [[ -n ${TMUX_SESSIONIZER_DIRS:-} ]]; then
-    IFS=: read -r -a search_dirs <<< "$TMUX_SESSIONIZER_DIRS"
+    IFS=: read -r -a search_dirs <<<"$TMUX_SESSIONIZER_DIRS"
   else
     search_dirs=("$HOME/Projects" "$HOME/HomeWork")
   fi
 
+  # Running sessions first (minus the current one and the scratch popup)
+  current_session=""
+  [[ -n ${TMUX:-} ]] && current_session=$(tmux display-message -p '#S')
+  sessions=$(tmux list-sessions -F '#S' 2>/dev/null |
+    grep -vxF -e "$current_session" -e scratch)
+
   directories=$(find "${search_dirs[@]}" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
   directories+=$'\n'"$HOME/.dotfiles"
-  selected=$(printf '%s\n' "$directories" | fzf --tmux)
+  # Frecent dirs from zoxide as extra candidates
+  if command -v zoxide >/dev/null 2>&1; then
+    while IFS= read -r dir; do
+      [[ -d $dir ]] && directories+=$'\n'"$dir"
+    done < <(zoxide query -l 2>/dev/null | head -n 10)
+  fi
+  directories=$(printf '%s\n' "$directories" | awk 'NF && !seen[$0]++')
+
+  selected=$({
+    [[ -n $sessions ]] && printf '%s\n' "$sessions" | sed "s/^/$SESSION_PREFIX/"
+    printf '%s\n' "$directories"
+  } | fzf --tmux)
 fi
 
 if [[ -z $selected ]]; then
   exit 0
 fi
 
-selected_name=$(basename "$selected" | tr -c '[:alnum:]_-' '_')
+if [[ $selected == "$SESSION_PREFIX"* ]]; then
+  selected_name=${selected#"$SESSION_PREFIX"}
+else
+  selected_name=$(basename "$selected")
+  selected_name=${selected_name//[^[:alnum:]_-]/_}
 
-if ! tmux has-session -t="$selected_name" 2>/dev/null; then
-  tmux new-session -ds "$selected_name" -c "$selected"
-  # Run project-specific .tmuxrc if it exists (e.g., to set up panes, start dev server)
-  if [ -x "$selected/.tmuxrc" ]; then
-    tmux send-keys -t "$selected_name" "./.tmuxrc" Enter
+  if ! tmux has-session -t="$selected_name" 2>/dev/null; then
+    tmux new-session -ds "$selected_name" -c "$selected"
+    # Run project-specific .tmuxrc if it exists (e.g., to set up panes, start dev server)
+    if [ -x "$selected/.tmuxrc" ]; then
+      tmux send-keys -t "$selected_name" "./.tmuxrc" Enter
+    fi
   fi
 fi
 
