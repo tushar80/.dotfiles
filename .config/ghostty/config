@@ -1,12 +1,10 @@
 theme = Catppuccin Mocha
 font-family = JetBrainsMono Nerd Font
 
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 cursor-style = block
 
 gtk-titlebar = false
-
-term = xterm-256color
 
 keybind = f11=toggle_fullscreen
 keybind = shift+enter=csi:13;2u
