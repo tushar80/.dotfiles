@@ -106,6 +106,8 @@ export EDITOR=nvim
 typeset -U path
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/go/bin:$PATH"
 
+# Machine-specific config (untracked)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 [[ -o interactive ]] && (( $+commands[figlet] )) && figlet K TushaR N -c -k
 
