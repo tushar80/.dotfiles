@@ -89,7 +89,17 @@ bindkey "^[[1;5D" backward-word
 bindkey '^H' backward-kill-word
 bindkey '^[[3;5~' kill-word  # Ctrl+Delete
 bindkey "^[[3~" delete-char
-bindkey -s ^f "tmux-sessionizer\n"
+
+# Stash any half-typed command (restored at next prompt), then run the
+# sessionizer as a real foreground command so `tmux attach` gets the terminal.
+# Leading space keeps it out of history via hist_ignore_space.
+_tmux-sessionizer-widget() {
+  [[ -n $BUFFER ]] && zle push-input
+  BUFFER=" tmux-sessionizer"
+  zle accept-line
+}
+zle -N _tmux-sessionizer-widget
+bindkey '^f' _tmux-sessionizer-widget
 alias tmux-root='tmux new -A -s root'
 
 #Always open in tmux
