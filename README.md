@@ -14,6 +14,8 @@ My personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/)
 - zoxide
 - ripgrep
 - fd
+- bat (optional, used for fzf previews)
+- figlet (optional, shell banner)
 
 ### System Packages
 
@@ -22,13 +24,15 @@ Install these packages from system's package repository:
 **Debian/Ubuntu:**
 
 ```bash
-sudo apt install git zsh neovim tmux ripgrep stow fd-find fzf zoxide
+sudo apt install git zsh neovim tmux ripgrep stow fd-find fzf zoxide bat figlet
+# Note: Debian installs bat as `batcat` and fd as `fdfind`; symlink them into
+# ~/.local/bin as `bat` and `fd` so the zsh config picks them up.
 ```
 
 **Arch Linux:**
 
 ```bash
-sudo pacman -S git zsh neovim tmux ripgrep stow fd fzf zoxide starship
+sudo pacman -S git zsh neovim tmux ripgrep stow fd fzf zoxide starship bat figlet
 ```
 
 Optional Arch/AUR tooling:
