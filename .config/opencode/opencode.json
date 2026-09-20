@@ -1,12 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false,
-  "permission": {
-    "bash": {
-      "rm*": "ask",
-      "git restore*": "ask",
-      "git reset*": "ask",
-      "git clean*": "ask"
-    }
-  }
+  "update": "disable",
+  "plugins": ["/home/tushar/Projects/opencode-gousage"],
+  "permissions": [
+    { "action": "shell", "resource": "rm*", "effect": "ask" },
+    { "action": "shell", "resource": "git restore*", "effect": "ask" },
+    { "action": "shell", "resource": "git reset*", "effect": "ask" },
+    { "action": "shell", "resource": "git clean*", "effect": "ask" }
+  ]
 }
