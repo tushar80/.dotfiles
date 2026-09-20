@@ -25,7 +25,7 @@ for arg in "$@"; do
       cat <<EOF
 Usage: $0 [--optional] [--dry-run]
 
-  --optional   also install optional apps (Alacritty, Ghostty, Zed, paru, opencode)
+  --optional   also install optional apps (Alacritty, Ghostty, paru, opencode)
   --dry-run    show what would be installed for this machine, without installing
 EOF
       exit 0
@@ -186,18 +186,15 @@ dry_run_plan() {
       macos)
         plan_tool alacritty Alacritty "brew cask"
         plan Ghostty "brew cask"
-        plan Zed "brew cask"
         ;;
       arch)
         plan_tool alacritty Alacritty "$native"
         plan_tool ghostty Ghostty "$native"
         plan_tool paru paru "AUR (makepkg)"
-        plan_tool zed Zed "zed.dev install script"
         ;;
       *)
         plan_tool alacritty Alacritty "$native (may be unavailable)"
         plan Ghostty "no official package — manual install"
-        plan_tool zed Zed "zed.dev install script"
         ;;
     esac
     plan_tool opencode opencode "opencode.ai install script"
@@ -510,27 +507,23 @@ install_optional_apps() {
     macos)
       confirm "Install Alacritty?" && brew install --cask alacritty
       confirm "Install Ghostty?" && brew install --cask ghostty
-      confirm "Install Zed?" && brew install --cask zed
       ;;
     arch)
       confirm "Install Alacritty?" && sudo pacman -S --needed --noconfirm alacritty
       confirm "Install Ghostty?" && sudo pacman -S --needed --noconfirm ghostty
       run_step "paru" install_paru
-      confirm "Install Zed (via zed.dev install script)?" && curl -fsSL https://zed.dev/install.sh | sh
       ;;
     fedora)
       if confirm "Install Alacritty?"; then
         sudo dnf install -y alacritty || warn "alacritty unavailable via dnf; install manually"
       fi
       warn "Ghostty has no official Fedora package; see https://ghostty.org for manual install"
-      confirm "Install Zed (via zed.dev install script)?" && curl -fsSL https://zed.dev/install.sh | sh
       ;;
     debian)
       if confirm "Install Alacritty?"; then
         sudo apt-get install -y alacritty || warn "alacritty unavailable via apt; install manually"
       fi
       warn "Ghostty has no official Debian/Ubuntu package; see https://ghostty.org for manual install"
-      confirm "Install Zed (via zed.dev install script)?" && curl -fsSL https://zed.dev/install.sh | sh
       ;;
   esac
   install_opencode
