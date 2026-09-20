@@ -22,7 +22,6 @@ Optional apps with configs included in this repo:
 
 - [Alacritty](https://alacritty.org/) (terminal)
 - [Ghostty](https://ghostty.org/) (terminal)
-- [Zed](https://zed.dev/) (editor)
 - [paru](https://github.com/Morganamilo/paru) (AUR helper)
 - [opencode](https://opencode.ai/) (AI coding agent)
 
@@ -134,7 +133,7 @@ Debian/Ubuntu, Arch Linux, Fedora, and macOS.
 ```bash
 cd ~/.dotfiles
 ./setup.sh              # required software only
-./setup.sh --optional   # also installs Alacritty, Ghostty, Zed, paru, opencode
+./setup.sh --optional   # also installs Alacritty, Ghostty, paru, opencode
 ./setup.sh --dry-run    # show what would be installed, without installing
 ```
 
