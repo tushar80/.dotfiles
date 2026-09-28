@@ -20,7 +20,6 @@ My personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/)
 
 Optional apps with configs included in this repo:
 
-- [Alacritty](https://alacritty.org/) (terminal)
 - [Ghostty](https://ghostty.org/) (terminal)
 - [paru](https://github.com/Morganamilo/paru) (AUR helper)
 - [opencode](https://opencode.ai/) (AI coding agent)
@@ -133,7 +132,7 @@ Debian/Ubuntu, Arch Linux, Fedora, and macOS.
 ```bash
 cd ~/.dotfiles
 ./setup.sh              # required software only
-./setup.sh --optional   # also installs Alacritty, Ghostty, paru, opencode
+./setup.sh --optional   # also installs Ghostty, paru, opencode
 ./setup.sh --dry-run    # show what would be installed, without installing
 ```
 
@@ -200,4 +199,4 @@ git clone --depth 1 https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/t
 - `tmux-sessionizer` searches `$HOME/Projects` and `$HOME/HomeWork` by default. Override with colon-separated `TMUX_SESSIONIZER_DIRS`, for example `TMUX_SESSIONIZER_DIRS="$HOME/Code:$HOME/Work"`. Bound to `C-f` inside tmux and `Ctrl-f` in zsh.
 - `Alt+\` in tmux toggles a floating scratch terminal.
 - Machine-specific overrides: `~/.zshrc.local` is sourced at the end of `.zshrc` if present, and is untracked so secrets and local aliases live there.
-- Theme is Catppuccin Mocha across fzf, tmux, Alacritty, and Ghostty configs.
+- Theme is Catppuccin Mocha across fzf, tmux, and Ghostty configs.
