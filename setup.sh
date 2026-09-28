@@ -25,7 +25,7 @@ for arg in "$@"; do
       cat <<EOF
 Usage: $0 [--optional] [--dry-run]
 
-  --optional   also install optional apps (Alacritty, Ghostty, paru, opencode)
+  --optional   also install optional apps (Ghostty, paru, opencode)
   --dry-run    show what would be installed for this machine, without installing
 EOF
       exit 0
@@ -184,16 +184,13 @@ dry_run_plan() {
   if $OPTIONAL; then
     case "$OS" in
       macos)
-        plan_tool alacritty Alacritty "brew cask"
         plan Ghostty "brew cask"
         ;;
       arch)
-        plan_tool alacritty Alacritty "$native"
         plan_tool ghostty Ghostty "$native"
         plan_tool paru paru "AUR (makepkg)"
         ;;
       *)
-        plan_tool alacritty Alacritty "$native (may be unavailable)"
         plan Ghostty "no official package — manual install"
         ;;
     esac
@@ -505,24 +502,16 @@ install_optional_apps() {
   log "Installing optional apps"
   case "$OS" in
     macos)
-      confirm "Install Alacritty?" && brew install --cask alacritty
       confirm "Install Ghostty?" && brew install --cask ghostty
       ;;
     arch)
-      confirm "Install Alacritty?" && sudo pacman -S --needed --noconfirm alacritty
       confirm "Install Ghostty?" && sudo pacman -S --needed --noconfirm ghostty
       run_step "paru" install_paru
       ;;
     fedora)
-      if confirm "Install Alacritty?"; then
-        sudo dnf install -y alacritty || warn "alacritty unavailable via dnf; install manually"
-      fi
       warn "Ghostty has no official Fedora package; see https://ghostty.org for manual install"
       ;;
     debian)
-      if confirm "Install Alacritty?"; then
-        sudo apt-get install -y alacritty || warn "alacritty unavailable via apt; install manually"
-      fi
       warn "Ghostty has no official Debian/Ubuntu package; see https://ghostty.org for manual install"
       ;;
   esac
