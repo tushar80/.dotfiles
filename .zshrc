@@ -27,14 +27,18 @@ zinit snippet OMZP::archlinux
 (( $+commands[aws] )) && zinit snippet OMZP::aws
 (( $+commands[kubectl] )) && zinit snippet OMZP::kubectl
 (( $+commands[kubectx] )) && zinit snippet OMZP::kubectx
-zinit snippet OMZP::command-not-found
 
 autoload -Uz compinit
-if [[ -n ~/.cache/.zcompdump(#qN.mh+24) ]]; then
+# Globs don't expand inside [[ ]], so test the qualifier via an array.
+stale_dump=(~/.cache/.zcompdump(N.mh+24))
+if (( $#stale_dump )); then
   compinit -d ~/.cache/.zcompdump
+  # compinit only rewrites the dump when completions change; reset the clock.
+  touch ~/.cache/.zcompdump
 else
   compinit -C -d ~/.cache/.zcompdump
 fi
+unset stale_dump
 _comp_options+=(globdots)
 
 zinit cdreplay -q
