@@ -1,3 +1,7 @@
+export EDITOR=nvim
+typeset -U path
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/go/bin:$PATH"
+
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 
 
@@ -23,7 +27,7 @@ zinit ice wait lucid
 zinit light zsh-users/zsh-syntax-highlighting
 
 zinit snippet OMZP::sudo
-zinit snippet OMZP::archlinux
+(( $+commands[pacman] )) && zinit snippet OMZP::archlinux
 (( $+commands[aws] )) && zinit snippet OMZP::aws
 (( $+commands[kubectl] )) && zinit snippet OMZP::kubectl
 (( $+commands[kubectx] )) && zinit snippet OMZP::kubectx
@@ -115,10 +119,6 @@ alias tmux-root='tmux new -A -s root'
 #        tmux switch-client -t $tmux_root_name
 #    fi
 # fi
-
-export EDITOR=nvim
-typeset -U path
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/go/bin:$PATH"
 
 # Machine-specific config (untracked)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
