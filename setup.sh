@@ -111,7 +111,7 @@ detect_os() {
     log "Detected OS: $OS (package manager: $pm)"
     return 0
   fi
-  if ! confirm "Detected OS: $OS — use $pm as the package manager?"; then
+  if ! confirm "Detected OS: $OS. Use $pm as the package manager?"; then
     warn "Aborted. Nothing was installed."
     exit 1
   fi
@@ -140,7 +140,7 @@ dry_run_plan() {
   esac
   native="native package ($pm)"
 
-  log "Dry run — nothing will be installed. Plan for this machine:"
+  log "Dry run, nothing will be installed. Plan for this machine:"
   plan "base packages" "git zsh tmux stow figlet ... via $pm"
   if pm_tracks_upstream; then
     plan_tool nvim neovim "$native"
@@ -191,7 +191,7 @@ dry_run_plan() {
         plan_tool paru paru "AUR (makepkg)"
         ;;
       *)
-        plan Ghostty "no official package — manual install"
+        plan Ghostty "no official package, manual install"
         ;;
     esac
     plan_tool opencode opencode "opencode.ai install script"
@@ -268,7 +268,7 @@ install_release_binary() {
 
 install_base_packages() {
   confirm "Install base packages (git zsh tmux stow figlet ...)?" || {
-    warn "Skipping base packages — stow is required later to link the dotfiles"
+    warn "Skipping base packages; stow is required later to link the dotfiles"
     return 0
   }
   case "$OS" in
@@ -302,7 +302,7 @@ install_base_packages() {
 # measurably lag upstream for these fast-moving tools (checked against live
 # repo/mdapi data while writing this script). Arch, Fedora, and macOS all
 # either match upstream releases closely or update on a cadence that's fine
-# to ride — and, unlike a one-off binary dropped in ~/.local/bin, they stay
+# to ride. Unlike a one-off binary dropped in ~/.local/bin, they stay
 # current through the normal `pacman -Syu` / `dnf upgrade` / `brew upgrade`
 # you're already running, since this script never re-checks a tool once
 # `have` finds it installed.

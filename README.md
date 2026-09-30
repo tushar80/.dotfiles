@@ -80,7 +80,7 @@ curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | 
 
 Arch, Fedora, and macOS package these close enough to upstream that
 `setup.sh` just installs them natively (`fd` is packaged as `fd-find` on
-Fedora — the binary itself is still called `fd`). Debian/Ubuntu's versions
+Fedora; the binary itself is still called `fd`). Debian/Ubuntu's versions
 lag enough that it's worth fetching the latest release from GitHub instead,
 e.g. for fzf on Linux amd64:
 
@@ -92,7 +92,7 @@ curl -L "$url" | tar -xz -C ~/.local/bin
 ```
 
 Swap the repo (`BurntSushi/ripgrep`, `sharkdp/fd`, `sharkdp/bat`) and asset
-pattern for the others — see `setup.sh` for the exact patterns used per OS/arch.
+pattern for the others. See `setup.sh` for the exact patterns used per OS/arch.
 
 ### Fonts
 
@@ -137,7 +137,7 @@ cd ~/.dotfiles
 ```
 
 The script is interactive: it confirms the detected OS/package manager up
-front, then asks `[Y/n]` (default yes) before each tool it would install —
+front, then asks `[Y/n]` (default yes) before each tool it would install,
 including the tmux plugin setup and changing your default shell. Tools that
 are already installed don't prompt, so the script is safe to re-run. When run
 non-interactively (no terminal), prompts auto-accept.
@@ -150,7 +150,7 @@ Notes on freshness: `git`/`zsh`/`tmux`/`stow`/`figlet` always come from the
 native package manager. For `neovim`, `fzf`, `ripgrep`, `fd`, `bat`,
 `starship`, and `zoxide`:
 
-- **Arch, Fedora, and macOS**: native package manager (pacman/dnf/Homebrew) —
+- **Arch, Fedora, and macOS**: native package manager (pacman/dnf/Homebrew),
   preferred so these tools stay current through the normal `pacman -Syu` /
   `dnf upgrade` / `brew upgrade` you're already running, rather than as a
   one-off binary in `~/.local/bin` that this script never revisits once
@@ -163,7 +163,7 @@ native package manager. For `neovim`, `fzf`, `ripgrep`, `fd`, `bat`,
   `starship` has no official Fedora package at all, so it falls back to its
   install script there.
 - **Debian/Ubuntu**: latest upstream GitHub release (or official install
-  script for starship/zoxide) — its repos lag by a much wider margin (e.g.
+  script for starship/zoxide). Its repos lag by a much wider margin (e.g.
   multi-year-old neovim on stable releases), so it's the one distro where
   fetching upstream directly is worth the trade-off.
 
@@ -173,11 +173,8 @@ If you'd rather skip `setup.sh` and just deploy configs (e.g. software is
 already installed):
 
 ```bash
-# Deploy all dotfiles
-stow --no-folding .
-
-# Or deploy specific configurations
-stow --no-folding --target=~ .config
+cd ~/.dotfiles
+stow --no-folding --target="$HOME" .
 ```
 
 ### tmux plugins
