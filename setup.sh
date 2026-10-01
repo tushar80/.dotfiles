@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
-# Bootstraps this dotfiles repo on a fresh machine: installs required (and
-# optionally optional) software, stows configs, and wires up tmux plugins.
-# Supports Debian/Ubuntu, Arch Linux, Fedora, and macOS.
+# Bootstrap a fresh Debian/Ubuntu, Arch, Fedora, or macOS machine. See README.md.
 set -uo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OPTIONAL=false
 DRY_RUN=false
 
-# Several tools install into ~/.local/bin (release binaries, starship/zoxide
-# install scripts). On a fresh machine it isn't on PATH yet, which would make
-# the post-install `have` checks falsely report failure.
+# Release binaries and install scripts land in ~/.local/bin, which a fresh
+# machine doesn't have on PATH yet.
 export PATH="$HOME/.local/bin:$PATH"
 
 for arg in "$@"; do
@@ -42,9 +39,8 @@ warn() { printf '\033[1;33m!!\033[0m %s\n' "$*" >&2; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 confirm() {
-  # Prompt [Y/n]; default yes. Reads from the terminal directly so it still
-  # works when the script itself is piped into bash. Auto-accepts when no
-  # terminal is available (unattended runs).
+  # Read from /dev/tty so prompts work when the script is piped into bash.
+  # With no terminal at all, accept.
   local reply
   printf '\033[1;36m??\033[0m %s [Y/n] ' "$*"
   if ! read -r reply 2>/dev/null </dev/tty; then
@@ -57,100 +53,73 @@ confirm() {
   esac
 }
 
-skip() { log "Skipping $1"; return 0; }
+skip() { log "Skipping $1"; }
+
+FAILED=()
 
 run_step() {
   local desc="$1"; shift
-  if "$@"; then
-    return 0
-  else
-    warn "Step failed: $desc (continuing)"
-    return 0
-  fi
+  "$@" || { warn "Step failed: $desc (continuing)"; FAILED+=("$desc"); }
+  return 0
 }
 
 OS=""
+PM=""
+FONT_DIR=""
 ARCH=""
 RUST_ARCH=""
 RUST_PLATFORM=""
 GO_PLATFORM=""
 
 detect_os() {
-  case "$(uname -s)" in
-    Darwin) OS=macos ;;
-    Linux)
-      if [ -r /etc/os-release ]; then
-        # shellcheck disable=SC1091
-        . /etc/os-release
-        case " ${ID:-} ${ID_LIKE:-} " in
-          *arch*|*manjaro*) OS=arch ;;
-          *fedora*|*rhel*) OS=fedora ;;
-          *debian*|*ubuntu*) OS=debian ;;
-          *) OS=unknown ;;
-        esac
-      else
-        OS=unknown
-      fi
-      ;;
-    *) OS=unknown ;;
-  esac
+  if [ "$(uname -s)" = Darwin ]; then
+    OS=macos PM=brew
+  elif [ -r /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    case " ${ID:-} ${ID_LIKE:-} " in
+      *arch*|*manjaro*) OS=arch PM=pacman ;;
+      *fedora*|*rhel*) OS=fedora PM=dnf ;;
+      *debian*|*ubuntu*) OS=debian PM=apt-get ;;
+    esac
+  fi
 
-  if [ "$OS" = unknown ]; then
+  if [ -z "$OS" ]; then
     warn "Unsupported or undetected OS. See README.md for manual installation."
     exit 1
   fi
 
-  local pm
-  case "$OS" in
-    macos) pm="Homebrew (brew)" ;;
-    arch) pm=pacman ;;
-    fedora) pm=dnf ;;
-    debian) pm="apt-get" ;;
-  esac
   if $DRY_RUN; then
-    log "Detected OS: $OS (package manager: $pm)"
+    log "Detected OS: $OS (package manager: $PM)"
     return 0
   fi
-  if ! confirm "Detected OS: $OS. Use $pm as the package manager?"; then
+  if ! confirm "Detected OS: $OS. Use $PM as the package manager?"; then
     warn "Aborted. Nothing was installed."
     exit 1
   fi
 }
 
-# --- Dry run -------------------------------------------------------------------
-
 plan() { printf '  %-24s %s\n' "$1" "$2"; }
 
 plan_tool() {
-  # $1 = binary to check, $2 = display name, $3 = install method if missing
-  if have "$1"; then
-    plan "$2" "already installed"
+  local bin="$1" name="$2" method="$3"
+  if have "$bin"; then
+    plan "$name" "already installed"
   else
-    plan "$2" "$3"
+    plan "$name" "$method"
   fi
 }
 
 dry_run_plan() {
-  local pm native
-  case "$OS" in
-    macos) pm=brew ;;
-    arch) pm=pacman ;;
-    fedora) pm=dnf ;;
-    debian) pm=apt-get ;;
-  esac
-  native="native package ($pm)"
+  local native="native package ($PM)"
 
   log "Dry run, nothing will be installed. Plan for this machine:"
-  plan "base packages" "git zsh tmux stow figlet ... via $pm"
+  plan "base packages" "git zsh tmux stow figlet ... via $PM"
   if pm_tracks_upstream; then
     plan_tool nvim neovim "$native"
     plan_tool fzf fzf "$native"
     plan_tool rg ripgrep "$native"
-    if [ "$OS" = fedora ]; then
-      plan_tool fd fd "$native (fd-find, aliased to fd)"
-    else
-      plan_tool fd fd "$native"
-    fi
+    plan_tool fd fd "$native"
     plan_tool bat bat "$native"
     plan_tool zoxide zoxide "$native"
   else
@@ -166,19 +135,12 @@ dry_run_plan() {
     *) plan_tool starship starship "official install script -> ~/.local/bin" ;;
   esac
 
-  local font_installed=false font_dir
-  if [ "$OS" = arch ]; then
-    pacman -Q ttf-jetbrains-mono-nerd >/dev/null 2>&1 && font_installed=true
-    font_dir="native package ($pm: ttf-jetbrains-mono-nerd)"
-  else
-    [ "$OS" = macos ] && font_dir="$HOME/Library/Fonts" || font_dir="$HOME/.local/share/fonts"
-    compgen -G "$font_dir/JetBrainsMonoNerdFont*.ttf" >/dev/null 2>&1 && font_installed=true
-    font_dir="GitHub release zip -> $font_dir"
-  fi
-  if $font_installed; then
+  if font_installed; then
     plan "JetBrains Mono NF" "already installed"
+  elif [ "$OS" = arch ]; then
+    plan "JetBrains Mono NF" "$native: ttf-jetbrains-mono-nerd"
   else
-    plan "JetBrains Mono NF" "$font_dir"
+    plan "JetBrains Mono NF" "GitHub release zip -> $FONT_DIR"
   fi
 
   if $OPTIONAL; then
@@ -226,16 +188,15 @@ detect_platform() {
   if [ "$OS" = macos ]; then
     RUST_PLATFORM="apple-darwin"
     GO_PLATFORM="darwin"
+    FONT_DIR="$HOME/Library/Fonts"
   else
     RUST_PLATFORM="unknown-linux-gnu"
     GO_PLATFORM="linux"
+    FONT_DIR="$HOME/.local/share/fonts"
   fi
 }
 
-# --- Latest-release helpers (used for tools that lag in distro repos) ------
-
 github_latest_asset() {
-  # $1 = owner/repo, $2 = extended-regex pattern matching the asset filename
   local repo="$1" pattern="$2"
   curl -fsSL "https://api.github.com/repos/${repo}/releases/latest" \
     | grep -oE '"browser_download_url": *"[^"]+"' \
@@ -245,8 +206,6 @@ github_latest_asset() {
 }
 
 install_release_binary() {
-  # Downloads a .tar.gz release asset and installs a single binary from it
-  # into ~/.local/bin.
   local repo="$1" pattern="$2" binname="$3"
   local url
   url="$(github_latest_asset "$repo" "$pattern")"
@@ -263,8 +222,6 @@ install_release_binary() {
   rm -rf "$tmp"
   have "$binname" || { warn "$binname was not installed correctly"; return 1; }
 }
-
-# --- Base packages (native package manager per OS) --------------------------
 
 install_base_packages() {
   confirm "Install base packages (git zsh tmux stow figlet ...)?" || {
@@ -284,7 +241,7 @@ install_base_packages() {
       ;;
     arch)
       log "Installing base packages via pacman"
-      sudo pacman -Sy --needed --noconfirm git zsh tmux stow figlet curl unzip
+      sudo pacman -Syu --needed --noconfirm git zsh tmux stow figlet curl unzip
       ;;
     fedora)
       log "Installing base packages via dnf"
@@ -298,14 +255,10 @@ install_base_packages() {
   esac
 }
 
-# --- Native package manager everywhere except Debian/Ubuntu, whose repos
-# measurably lag upstream for these fast-moving tools (checked against live
-# repo/mdapi data while writing this script). Arch, Fedora, and macOS all
-# either match upstream releases closely or update on a cadence that's fine
-# to ride. Unlike a one-off binary dropped in ~/.local/bin, they stay
-# current through the normal `pacman -Syu` / `dnf upgrade` / `brew upgrade`
-# you're already running, since this script never re-checks a tool once
-# `have` finds it installed.
+# Debian/Ubuntu repos lag far behind upstream for these tools, so fetch
+# upstream releases there. Elsewhere native packages stay current through
+# normal system upgrades, which matters because this script never revisits
+# a tool once it is installed.
 
 pm_tracks_upstream() {
   case "$OS" in
@@ -315,25 +268,12 @@ pm_tracks_upstream() {
 }
 
 install_native() {
-  # $1 = package name (same across pacman/dnf/brew for most of these tools)
   local pkg="$1"
   case "$OS" in
     macos) brew install "$pkg" ;;
     arch) sudo pacman -S --needed --noconfirm "$pkg" ;;
     fedora) sudo dnf install -y "$pkg" ;;
   esac
-}
-
-# Some distros package a tool under a different name and/or binary than
-# upstream (e.g. Fedora's fd is packaged as fd-find). Symlink the renamed
-# binary to the expected name if needed.
-ensure_binary_alias() {
-  local expected="$1" alternative="$2"
-  have "$expected" && return 0
-  if have "$alternative"; then
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$(command -v "$alternative")" "$HOME/.local/bin/$expected"
-  fi
 }
 
 install_neovim() {
@@ -358,7 +298,7 @@ install_neovim() {
   log "Installing neovim from $url"
   local tmp
   tmp="$(mktemp -d)"
-  curl -fsSL "$url" | tar -xz -C "$tmp" --strip-components=1
+  curl -fsSL "$url" | tar -xz -C "$tmp" --strip-components=1 || { rm -rf "$tmp"; return 1; }
   sudo rm -rf /opt/nvim
   sudo mv "$tmp" /opt/nvim
   mkdir -p "$HOME/.local/bin"
@@ -392,8 +332,7 @@ install_fd() {
   confirm "Install fd?" || { skip fd; return 0; }
   if pm_tracks_upstream; then
     if [ "$OS" = fedora ]; then
-      sudo dnf install -y fd-find
-      ensure_binary_alias fd fdfind
+      install_native fd-find
     else
       install_native fd
     fi
@@ -418,11 +357,11 @@ install_starship() {
   case "$OS" in
     arch|macos) install_native starship; return ;;
   esac
-  # Fedora has no official starship package (confirmed: 404/400 from
-  # packages.fedoraproject.org and mdapi across branches); Debian/Ubuntu lag
-  # badly too. Fall back to the official cross-platform install script.
+  # No official Fedora package, and Debian/Ubuntu lag badly.
   log "Installing starship via official install script"
-  curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
+  # The installer refuses a --bin-dir that doesn't exist yet.
+  mkdir -p "$HOME/.local/bin"
+  curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
 }
 
 install_zoxide() {
@@ -433,57 +372,54 @@ install_zoxide() {
     return
   fi
   log "Installing zoxide via official install script"
-  curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 }
 
 install_opencode() {
   have opencode && { log "opencode already installed"; return 0; }
   confirm "Install opencode (via opencode.ai install script)?" || { skip opencode; return 0; }
   log "Installing opencode"
-  curl -fsSL https://opencode.ai/install | bash
+  # Without --no-modify-path the installer appends to ~/.zshrc, which is either
+  # the stock file stow is about to back up or the tracked one in this repo.
+  curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path || return
+  local path_line='export PATH="$HOME/.opencode/bin:$PATH"'
+  grep -qxF "$path_line" "$HOME/.zshrc.local" 2>/dev/null \
+    || printf '%s\n' "$path_line" >> "$HOME/.zshrc.local"
 }
 
-# --- Fonts -------------------------------------------------------------------
+font_installed() {
+  if [ "$OS" = arch ]; then
+    pacman -Q ttf-jetbrains-mono-nerd >/dev/null 2>&1
+  else
+    compgen -G "$FONT_DIR/JetBrainsMonoNerdFont*.ttf" >/dev/null 2>&1
+  fi
+}
 
 install_fonts() {
+  if font_installed; then
+    log "JetBrains Mono Nerd Font already installed"
+    return 0
+  fi
+  confirm "Install JetBrains Mono Nerd Font?" || { skip fonts; return 0; }
   if [ "$OS" = arch ]; then
-    if pacman -Q ttf-jetbrains-mono-nerd >/dev/null 2>&1; then
-      log "JetBrains Mono Nerd Font already installed"
-      return 0
-    fi
-    confirm "Install JetBrains Mono Nerd Font?" || { skip fonts; return 0; }
     log "Installing JetBrains Mono Nerd Font via pacman"
     install_native ttf-jetbrains-mono-nerd
     return
   fi
 
-  local font_dir
-  if [ "$OS" = macos ]; then
-    font_dir="$HOME/Library/Fonts"
-  else
-    font_dir="$HOME/.local/share/fonts"
-  fi
-
-  if compgen -G "$font_dir/JetBrainsMonoNerdFont*.ttf" >/dev/null 2>&1; then
-    log "JetBrains Mono Nerd Font already installed"
-    return 0
-  fi
-
-  confirm "Install JetBrains Mono Nerd Font?" || { skip fonts; return 0; }
   log "Installing JetBrains Mono Nerd Font"
-  mkdir -p "$font_dir"
+  mkdir -p "$FONT_DIR"
   local tmp
   tmp="$(mktemp -d)"
   curl -fLo "$tmp/JetBrainsMono.zip" \
-    https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-  unzip -oq "$tmp/JetBrainsMono.zip" -d "$font_dir"
+    https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip \
+    && unzip -oq "$tmp/JetBrainsMono.zip" -d "$FONT_DIR" \
+    || { rm -rf "$tmp"; return 1; }
   rm -rf "$tmp"
   if [ "$OS" != macos ]; then
-    fc-cache -f "$font_dir" >/dev/null 2>&1 || true
+    fc-cache -f "$FONT_DIR" >/dev/null 2>&1 || true
   fi
 }
-
-# --- Optional apps ------------------------------------------------------------
 
 install_paru() {
   have paru && return 0
@@ -517,8 +453,6 @@ install_optional_apps() {
   esac
   install_opencode
 }
-
-# --- Dotfiles: stow + tmux plugins -------------------------------------------
 
 setup_tpm() {
   local tpm_dir="$HOME/.config/tmux/plugins/tpm"
@@ -592,10 +526,10 @@ main() {
   run_step "fonts" install_fonts
   run_step "optional apps" install_optional_apps
 
-  stow_dotfiles
+  run_step "dotfiles (stow)" stow_dotfiles
   if confirm "Set up tmux plugins (clone tpm and install plugins)?"; then
-    setup_tpm
-    install_tmux_plugins
+    run_step "tpm" setup_tpm
+    run_step "tmux plugins" install_tmux_plugins
   else
     skip "tmux plugins"
   fi
@@ -618,3 +552,9 @@ main() {
 }
 
 main
+
+if [ "${#FAILED[@]}" -gt 0 ]; then
+  warn "These steps failed:"
+  printf '  %s\n' "${FAILED[@]}" >&2
+  exit 1
+fi
