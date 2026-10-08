@@ -8,5 +8,7 @@ gtk-titlebar = false
 
 keybind = f11=toggle_fullscreen
 keybind = shift+enter=csi:13;2u
+# Pass through to tmux copy mode when Ghostty has no selection of its own
+keybind = performable:ctrl+shift+c=copy_to_clipboard:mixed
 
 #initial-command=tmux new-session -A -s root
