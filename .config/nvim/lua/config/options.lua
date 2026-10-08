@@ -3,4 +3,5 @@
 
 vim.o.scrolloff = 10
 vim.o.confirm = true
+vim.o.conceallevel = 0
 vim.g.lazyvim_python_lsp = "ty"
