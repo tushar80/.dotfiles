@@ -167,10 +167,10 @@ dry_run_plan() {
   else
     plan "tmux plugins" "clone tpm + install plugins"
   fi
-  if [ "${SHELL:-}" != "$(command -v zsh 2>/dev/null)" ]; then
-    plan "default shell" "chsh to zsh"
-  else
+  if [ "${SHELL:-}" -ef "$(command -v zsh 2>/dev/null)" ]; then
     plan "default shell" "already zsh"
+  else
+    plan "default shell" "chsh to zsh"
   fi
 }
 
@@ -425,12 +425,13 @@ install_paru() {
   have paru && return 0
   confirm "Install paru (AUR helper, built with makepkg)?" || { skip paru; return 0; }
   log "Installing paru (AUR helper)"
-  sudo pacman -S --needed --noconfirm base-devel
-  local tmp
+  sudo pacman -S --needed --noconfirm base-devel || return
+  local tmp rc
   tmp="$(mktemp -d)"
-  git clone https://aur.archlinux.org/paru.git "$tmp"
-  (cd "$tmp" && makepkg -si --noconfirm)
+  git clone https://aur.archlinux.org/paru.git "$tmp" && (cd "$tmp" && makepkg -si --noconfirm)
+  rc=$?
   rm -rf "$tmp"
+  return "$rc"
 }
 
 install_optional_apps() {
@@ -438,10 +439,10 @@ install_optional_apps() {
   log "Installing optional apps"
   case "$OS" in
     macos)
-      confirm "Install Ghostty?" && brew install --cask ghostty
+      confirm "Install Ghostty?" && run_step Ghostty brew install --cask ghostty
       ;;
     arch)
-      confirm "Install Ghostty?" && sudo pacman -S --needed --noconfirm ghostty
+      confirm "Install Ghostty?" && run_step Ghostty sudo pacman -S --needed --noconfirm ghostty
       run_step "paru" install_paru
       ;;
     fedora)
@@ -536,18 +537,35 @@ main() {
 
   log "Done. Restart your shell (or run 'exec zsh') to pick up the new config."
 
-  local zsh_path
-  zsh_path="$(command -v zsh)"
-  if [ "${SHELL:-}" != "$zsh_path" ]; then
-    confirm "Set zsh as your default shell?" || return 0
-    if chsh -s "$zsh_path"; then
-      log "Set zsh as your default shell. Log out and back in for it to take effect."
-    else
-      warn "Could not set zsh as your default shell automatically."
-      warn "On macOS this usually means $zsh_path isn't listed in /etc/shells yet:"
-      warn "  echo \"$zsh_path\" | sudo tee -a /etc/shells"
-      log "Then run: chsh -s $zsh_path"
-    fi
+  local zsh_path shell
+  if ! zsh_path="$(command -v zsh)"; then
+    warn "zsh is not installed, so it can't be made the default shell"
+    FAILED+=("default shell")
+    return 0
+  fi
+  [ "${SHELL:-}" -ef "$zsh_path" ] && return 0
+
+  # On merged-/usr systems (Arch) zsh is also reachable as /sbin/zsh or
+  # /usr/sbin/zsh, and PATH may resolve it that way. chsh only accepts the
+  # exact spelling listed in /etc/shells.
+  if ! grep -qxF "$zsh_path" /etc/shells; then
+    while IFS= read -r shell; do
+      if [ "$shell" -ef "$zsh_path" ]; then
+        zsh_path="$shell"
+        break
+      fi
+    done </etc/shells
+  fi
+
+  confirm "Set zsh as your default shell?" || return 0
+  if chsh -s "$zsh_path"; then
+    log "Set zsh as your default shell. Log out and back in for it to take effect."
+  else
+    warn "Could not set zsh as your default shell automatically."
+    grep -qxF "$zsh_path" /etc/shells \
+      || warn "$zsh_path is not in /etc/shells. Add it with: echo \"$zsh_path\" | sudo tee -a /etc/shells"
+    log "Then run: chsh -s $zsh_path"
+    FAILED+=("default shell")
   fi
 }
 
